@@ -1,6 +1,8 @@
 package com.example.caroline.designpatterns;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -58,6 +60,15 @@ public class register extends AppCompatActivity {
         String name = ((TextView) findViewById(R.id.nameTextField)).getText().toString();
         String password = ((TextView) findViewById(R.id.emailTextView)).getText().toString();
         new MyDownloadTask().execute(address, payment, name, password);
+        SharedPreferences preferences = getSharedPreferences("User_Info", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString("ADDRESS",address);
+        editor.putString("NAME",name);
+        editor.putString("PAYMENT",payment);
+        editor.putString("PASSWORD",password);
+        editor.commit();
+        new MyDownloadTask().execute(address, payment, name, password);
+
         Intent intent = new Intent(this,BookStore.class);
         startActivity(intent);
     }
@@ -65,7 +76,7 @@ public class register extends AppCompatActivity {
         @Override
         protected String doInBackground(String... params) {
             BufferedReader inBuffer = null;
-            String url = "http://192.168.192.15:8080/create_user";
+            String url = "http://192.168.0.7:8080/create_user";
             String result = "fail";
 
             String address = params[0];

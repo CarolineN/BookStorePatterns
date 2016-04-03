@@ -74,8 +74,35 @@ public class Stock implements ItemElement {
                 ", category='" + category + '\'' +
                 '}';
     }
+
     @Override
     public int accept(ShoppingCartVisitor visitor) {
         return visitor.visit(this);
     }
+    public Memento save(){
+        return new Memento(this.title, this.author,this.price, this.category);
+    }
+
+    public void undoToLastSave(Object obj) {
+        Memento memento = (Memento) obj;
+        this.title = memento.title;
+        this.author =memento.author;
+        this.price = memento.price;
+
+    }
+    private class Memento {
+        private String title;
+        private String author;
+        private int price;
+        private String category;
+
+        public Memento(String title, String author,int price, String category) {
+            this.title = title;
+            this.author=author;
+            this.price=price;
+            this.category=category;
+
+        }
+    }
 }
+

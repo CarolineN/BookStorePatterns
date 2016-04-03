@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -27,7 +26,6 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
-import org.json.JSONStringer;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -38,12 +36,9 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
-
-
-public class BookStore extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
+public class AdminBookStore extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
     List<Stock> stocks;
     List<String>stockItems;
     List<Stock> products;
@@ -55,7 +50,7 @@ public class BookStore extends AppCompatActivity implements AdapterView.OnItemSe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_book_store);
+        setContentView(R.layout.activity_admin_book_store);
         new GetStockDetails().execute("http://192.168.0.7:8080/reststocks");
         try {
             Thread.sleep(1000);
@@ -91,9 +86,7 @@ public class BookStore extends AppCompatActivity implements AdapterView.OnItemSe
         // On selecting a spinner item
         item = parent.getItemAtPosition(position).toString();
 
-//       if(item.equalsIgnoreCase("title")){
-//          new TitleSortStrategy().sort();
-//       }
+
     }
 
     public void onNothingSelected(AdapterView<?> arg0) {
@@ -101,62 +94,53 @@ public class BookStore extends AppCompatActivity implements AdapterView.OnItemSe
     }
 
 
-public void goBack(View v){
-    ((EditText) findViewById(R.id.search)).setText("");
-    addToList();
-}
-
-public void addToList(){
-    stockItems = new ArrayList<>();
-    menu = new Menu1();// iterator pattern
-    for(Stock stock:stocks) {
-
-        menu.addStock(stock);
+    public void goBack(View v){
+        ((EditText) findViewById(R.id.search)).setText("");
+        addToList();
     }
-    for(Stock stock1:menu.stocks){
-        String author = stock1.getAuthor();
-        String title = stock1.getTitle();
-        String category = stock1.getCategory();
-        int price = stock1.getPrice();
-        stockItems.add("Title: " +title + "\n" +"Author: "+ author + "\n" +"Caregory: "+category + "\n" +"Price: "+price);
-    }
-    listView = (ListView) findViewById(R.id.list);
-    ArrayAdapter<Stock> adapter = new ArrayAdapter<Stock>(this, R.layout.row_layout,menu.stocks );
-    listView.setAdapter(adapter);
-
-    listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-
-        public boolean onItemLongClick(AdapterView<?> arg0, View v,
-                                       int index, long arg3) {
-            Stock stock;
-
-            stock = (Stock) listView.getItemAtPosition(index);
-
-            System.out.print(stock.toString());
-            products.add(stock);
-
-            //items = new ItemElement[]{new Stock(title1,author1,foo, category1)};
-            Toast.makeText(BookStore.this,"Added to Cart!", Toast.LENGTH_LONG).show();
-            return false;
-
-        }
-    });
-
-}
-    public void shoppingCart(View v){
-        total = calculatePrice(products);
-        System.out.println("Total Cost = "+total);
-        SharedPreferences preferences1 = getSharedPreferences("User_Info", Context.MODE_PRIVATE);
-        String name = preferences1.getString("NAME", "");
-        System.out.println("is there nothing?" +name);
-
-        ShoppingCart cart = new ShoppingCart(name,total,products);
-        System.out.println(cart.toString());
-        Intent intent = new Intent(BookStore.this, TheCart.class);
+    public void addStock(View v){
+        Intent intent = new Intent(this, AddStock.class);
         startActivity(intent);
-        new MyDownloadTask().execute(name);
+    }
+
+    public void addToList(){
+        stockItems = new ArrayList<>();
+        menu = new Menu1();// iterator pattern
+        for(Stock stock:stocks) {
+
+            menu.addStock(stock);
+        }
+        for(Stock stock1:menu.stocks){
+            String author = stock1.getAuthor();
+            String title = stock1.getTitle();
+            String category = stock1.getCategory();
+            int price = stock1.getPrice();
+            stockItems.add("Title: " +title + "\n" +"Author: "+ author + "\n" +"Caregory: "+category + "\n" +"Price: "+price);
+        }
+        listView = (ListView) findViewById(R.id.list);
+        ArrayAdapter<Stock> adapter = new ArrayAdapter<Stock>(this, R.layout.row_layout,menu.stocks );
+        listView.setAdapter(adapter);
+
+        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+
+            public boolean onItemLongClick(AdapterView<?> arg0, View v,
+                                           int index, long arg3) {
+                Stock stock;
+
+                stock = (Stock) listView.getItemAtPosition(index);
+
+                System.out.print(stock.toString());
+                products.add(stock);
+
+                //items = new ItemElement[]{new Stock(title1,author1,foo, category1)};
+                Toast.makeText(AdminBookStore.this, "Added to Cart!", Toast.LENGTH_LONG).show();
+                return false;
+
+            }
+        });
 
     }
+
     private static int calculatePrice(List<Stock> products) {
         ShoppingCartVisitor visitor = new ShoppingCartImpl();
         int sum=0;
@@ -193,7 +177,7 @@ public void addToList(){
         String searchedItem = ((EditText) findViewById(R.id.search)).getText().toString();
 
         if(item.equalsIgnoreCase("title")) {
-           stockItems = new TitleSortStrategy().sort(searchedItem, menu.stocks);
+            stockItems = new TitleSortStrategy().sort(searchedItem, menu.stocks);
             listView = (ListView) findViewById(R.id.list);
             ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.row_layout,stockItems );
             listView.setAdapter(adapter);
@@ -273,112 +257,7 @@ public void addToList(){
 
         }
     }
-    private class MyDownloadTask extends AsyncTask<String, String, String> {
-        @Override
-        protected String doInBackground(String... params) {
-            BufferedReader inBuffer = null;
-            String url = "http://192.168.0.7:8080/create_cart";
-            String result = "fail";
 
-            String name = params[0];
-
-            String strI = Integer.toString(total);
-            String json = new Gson().toJson(products);
-
-            try {
-                HttpClient httpClient = new DefaultHttpClient();
-                HttpPost request = new HttpPost(url);
-                List<NameValuePair> postParameters =
-                        new ArrayList<NameValuePair>();
-                postParameters.add(new BasicNameValuePair("userName", name));
-                postParameters.add(new BasicNameValuePair("totalPrice", strI));
-                postParameters.add(new BasicNameValuePair("stocks",json));
-
-
-
-                UrlEncodedFormEntity formEntity =
-                        new UrlEncodedFormEntity(postParameters);
-
-                request.setEntity(formEntity);
-                HttpResponse httpResponse = httpClient.execute(request);
-                inBuffer = new BufferedReader(new InputStreamReader(
-                        httpResponse.getEntity().getContent()));
-
-                StringBuffer stringBuffer = new StringBuffer("");
-                String line = "";
-                String newLine = System.getProperty("line.separator");
-                while ((line = inBuffer.readLine()) != null) {
-                    stringBuffer.append(line + newLine);
-                }
-                inBuffer.close();
-                result = stringBuffer.toString();
-            } catch (Exception e) {
-                result = e.getMessage();
-            } finally {
-                if (inBuffer != null) {
-                    try {
-                        inBuffer.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-            return result;
-        }
-    }
-
-}
-
-interface SortStrategy {
-
-    public List sort(String n, List<Stock>stocks);
-}
-class TitleSortStrategy implements SortStrategy {
-    List<String> stockItems;
-    public List sort(String search, List<Stock>stocks) {
-        System.out.println(stocks.size());
-
-        stockItems = new ArrayList<>();
-        System.out.println(search);
-        System.out.println("Title");
-        for (Stock stock : stocks) {
-            if (stock.getTitle().equalsIgnoreCase(search)) {
-                String title=stock.getTitle();
-                stockItems.add("Title: " + title+ "\n" + "Author: " + stock.getAuthor() + "\n" + "Caregory: " + stock.getCategory() + "\n" + "Price: " + stock.getPrice());
-            }
-        }
-        System.out.println(stockItems);
-            return stockItems;
-    }
-}
-class AuthorSortStrategy implements SortStrategy  {
-    List<String> stockItems;
-    public List sort(String search, List<Stock>stocks) {
-        stockItems = new ArrayList<>();
-        for (Stock stock : stocks) {
-            if (stock.getAuthor().equalsIgnoreCase(search)) {
-                String title=stock.getTitle();
-                stockItems.add("Title: " + title+ "\n" + "Author: " + stock.getAuthor() + "\n" + "Caregory: " + stock.getCategory() + "\n" + "Price: " + stock.getPrice());
-            }
-        }
-        System.out.println(stockItems);
-        return stockItems;
-    }
-}
-class CategorySortStrategy implements SortStrategy {
-    List<String> stockItems;
-
-    public List sort(String search, List<Stock> stocks) {
-        stockItems = new ArrayList<>();
-        for (Stock stock : stocks) {
-            if (stock.getCategory().equalsIgnoreCase(search)) {
-                String title = stock.getTitle();
-                stockItems.add("Title: " + title + "\n" + "Author: " + stock.getAuthor() + "\n" + "Caregory: " + stock.getCategory() + "\n" + "Price: " + stock.getPrice());
-            }
-        }
-        System.out.println(stockItems);
-        return stockItems;
-    }
 }
 
 

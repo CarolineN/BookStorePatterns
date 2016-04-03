@@ -2,18 +2,18 @@ package com.example.caroline.designpatterns;
 
 import java.util.List;
 
-/**
- * Created by Caroline on 3/30/2016.
- */
+
 public class ShoppingCart {
 
     private long id;
-    private int userId;
+    private String userName;
     private int totalPrice;
+
+
     private List<Stock> stocks;
 
-    public ShoppingCart(int userId, int totalPrice, List<Stock> stocks) {
-        this.userId = userId;
+    public ShoppingCart(String userName, int totalPrice, List<Stock> stocks) {
+        this.userName = userName;
         this.totalPrice = totalPrice;
         this.stocks = stocks;
     }
@@ -26,12 +26,12 @@ public class ShoppingCart {
         this.id = id;
     }
 
-    public int getUserId() {
-        return userId;
+    public String getUserName() {
+        return userName;
     }
 
-    public void setUserId(int userId) {
-        this.userId = userId;
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
     public int getTotalPrice() {
@@ -54,7 +54,7 @@ public class ShoppingCart {
     public String toString() {
         return "ShoppingCart{" +
                 "id=" + id +
-                ", userId=" + userId +
+                ", userName=" + userName +
                 ", totalPrice=" + totalPrice +
                 ", stocks=" + stocks +
                 '}';

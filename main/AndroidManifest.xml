@@ -29,7 +29,20 @@
         <activity
             android:name=".BookStore"
             android:label="@string/title_activity_book_store"
-            android:windowSoftInputMode="stateHidden|adjustPan">
+            android:windowSoftInputMode="stateHidden|adjustPan" >
+        </activity>
+        <activity
+            android:name=".TheCart"
+            android:label="@string/title_activity_the_cart" >
+        </activity>
+        <activity
+            android:name=".AdminBookStore"
+            android:label="@string/title_activity_admin_book_store"
+            android:windowSoftInputMode="stateHidden|adjustPan" >
+        </activity>
+        <activity
+            android:name=".AddStock"
+            android:label="@string/title_activity_add_stock" >
         </activity>
     </application>
 

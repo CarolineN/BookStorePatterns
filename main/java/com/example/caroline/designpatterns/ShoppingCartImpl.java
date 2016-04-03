@@ -12,7 +12,7 @@ public class ShoppingCartImpl implements ShoppingCartVisitor {
         if (stock.getPrice() > 50) {
             cost = stock.getPrice() - 5;
         } else cost = stock.getPrice();
-        System.out.println("Book ISBN::" + stock.getTitle() + " cost =" + cost);
+        System.out.println("Title:" + stock.getTitle() + " cost =" + cost);
         return cost;
     }
 }
