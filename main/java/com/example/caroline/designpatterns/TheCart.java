@@ -34,12 +34,14 @@ public class TheCart extends AppCompatActivity {
     ListView listView;
     TextView myAwesomeTextView;
     TextView my;
+    static CartSingleton instance = CartSingleton.getCartSingletonInstance();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_the_cart);
         Intent intent = getIntent();
+
         names=new ArrayList<>();
         new GetCartDetails().execute("http://192.168.0.7:8080/restcarts");
         try {
@@ -47,10 +49,12 @@ public class TheCart extends AppCompatActivity {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        stocks1= new ArrayList<>();
-        int total=0;
         SharedPreferences preferences1 = getSharedPreferences("User_Info", Context.MODE_PRIVATE);
         String name = preferences1.getString("NAME", "");
+        stocks1= new ArrayList<>();
+
+        int total=0;
+
         System.out.println("The name:" + name);
         for(ShoppingCart c:carts){
             total = c.getTotalPrice();
@@ -65,7 +69,14 @@ public class TheCart extends AppCompatActivity {
             String author = stock.getAuthor();
             System.out.println(title);
             names.add(title + "\n" + author);
+            instance.addStock(stock);
+
         }
+        ShoppingCart cart = new ShoppingCart();
+        cart.setUserName(name);
+        cart.setTotalPrice(total);
+
+        instance.addCart(cart);
         listView = (ListView) findViewById(R.id.list);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.row_layout,names );
         listView.setAdapter(adapter);
@@ -74,9 +85,15 @@ public class TheCart extends AppCompatActivity {
         myAwesomeTextView = (TextView)findViewById(R.id.total);
         my=(TextView)findViewById(R.id.name);
 //in your OnCreate() method
-        myAwesomeTextView.setText("Total Price:" + total);
-        my.setText("Customer:" +name);
-
+        myAwesomeTextView.setText("Total Price:" + cart.getTotalPrice());
+        my.setText("Customer:" + cart.getUserName());
+        String result = null;
+        try {
+            result = instance.getCartObject();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        System.out.println(result);
     }
 
     @Override

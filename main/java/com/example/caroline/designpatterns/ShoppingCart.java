@@ -17,6 +17,8 @@ public class ShoppingCart {
         this.totalPrice = totalPrice;
         this.stocks = stocks;
     }
+    public ShoppingCart(){}
+
 
     public long getId() {
         return id;
