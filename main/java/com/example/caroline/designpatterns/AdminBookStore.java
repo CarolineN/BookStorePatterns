@@ -51,7 +51,7 @@ public class AdminBookStore extends AppCompatActivity implements AdapterView.OnI
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin_book_store);
-        new GetStockDetails().execute("http://147.252.141.139:8080/reststocks");
+        new GetStockDetails().execute("http://192.168.0.7:8080/reststocks");
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {

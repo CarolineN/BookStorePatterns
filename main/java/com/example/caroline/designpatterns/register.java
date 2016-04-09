@@ -76,7 +76,7 @@ public class register extends AppCompatActivity {
         @Override
         protected String doInBackground(String... params) {
             BufferedReader inBuffer = null;
-            String url = "http://147.252.141.139:8080/create_user";
+            String url = "http://192.168.0.7:8080/create_user";
             String result = "fail";
 
             String address = params[0];

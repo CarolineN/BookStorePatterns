@@ -59,7 +59,7 @@ public class BookStore extends AppCompatActivity implements AdapterView.OnItemSe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_book_store);
-        new GetStockDetails().execute("http://147.252.141.139:8080/reststocks");
+        new GetStockDetails().execute("http://192.168.0.7:8080/reststocks");
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
@@ -291,7 +291,7 @@ public void addToList(){
             String category="";
             int price=0;
             BufferedReader inBuffer = null;
-            String url = "http://147.252.141.139:8080/create_cart";
+            String url = "http://192.168.0.7:8080/create_cart";
             String result = "fail";
             String name = params[0];
             String strI = Integer.toString(total);

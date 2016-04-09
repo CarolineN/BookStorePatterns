@@ -34,13 +34,13 @@ public class login extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        new GetUserDetails().execute("http://147.252.141.139:8080/restusers");
+        new GetUserDetails().execute("http://192.168.0.7:8080/restusers");
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        new GetAdmin().execute("http://147.252.141.139:8080/restreports");
+        new GetAdmin().execute("http://192.168.0.7:8080/restreports");
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {

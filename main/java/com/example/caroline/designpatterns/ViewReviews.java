@@ -43,13 +43,13 @@ public class ViewReviews extends AppCompatActivity implements AdapterView.OnItem
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_reviews);
-        new GetStockDetails().execute("http://147.252.141.139:8080/reststocks");
+        new GetStockDetails().execute("http://192.168.0.7:8080/reststocks");
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        new GetReviewDetails().execute("http://147.252.141.139:8080/restreviews");
+        new GetReviewDetails().execute("http://192.168.0.7:8080/restreviews");
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
