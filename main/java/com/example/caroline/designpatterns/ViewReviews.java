@@ -1,16 +1,17 @@
 package com.example.caroline.designpatterns;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.TextView;
+import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -26,32 +27,113 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-public class login extends AppCompatActivity {
-    List<User> users;
-    List<Admin>admins;
+public class ViewReviews extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
+    List<Review> reviews;
+    List<Stock>stocks;
+    List<Review>reviews2;
+    List<String> stockItems;
+    List<Stock> products;
+    ListView listView;
+    Menu1 menu;
+    int total;
+    ItemElement[] items;
+    public static String item;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
-        new GetUserDetails().execute("http://147.252.141.139:8080/restusers");
+        setContentView(R.layout.activity_view_reviews);
+        new GetStockDetails().execute("http://147.252.141.139:8080/reststocks");
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        new GetAdmin().execute("http://147.252.141.139:8080/restreports");
+        new GetReviewDetails().execute("http://147.252.141.139:8080/restreviews");
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+        addToList();
+        products = new ArrayList<>();
+
+    }
+
+
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        // On selecting a spinner item
+        item = parent.getItemAtPosition(position).toString();
+
+
+    }
+
+    public void onNothingSelected(AdapterView<?> arg0) {
+        // TODO Auto-generated method stub
+    }
+
+
+    public void goBack(View v) {
+        ((EditText) findViewById(R.id.search)).setText("");
+        addToList();
+    }
+
+    public void addStock(View v) {
+        Intent intent = new Intent(this, AddStock.class);
+        startActivity(intent);
+    }
+
+    public void addToList() {
+        stockItems = new ArrayList<>();
+        menu = new Menu1();// iterator pattern
+        for (Stock stock : stocks) {
+
+            menu.addStock(stock);
+        }
+        for (Stock stock1 : menu.stocks) {
+            String author = stock1.getAuthor();
+            String title = stock1.getTitle();
+            String category = stock1.getCategory();
+            int price = stock1.getPrice();
+            stockItems.add("Title: " + title + "\n" + "Author: " + author + "\n" + "Caregory: " + category + "\n" + "Price: " + price);
+        }
+        listView = (ListView) findViewById(R.id.list);
+        ArrayAdapter<Stock> adapter = new ArrayAdapter<Stock>(this, R.layout.row_layout, menu.stocks);
+        listView.setAdapter(adapter);
+
+        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+
+            public boolean onItemLongClick(AdapterView<?> arg0, View v,
+                                           int index, long arg3) {
+                Stock stock;
+
+                stock = (Stock)listView.getItemAtPosition(index);
+
+                Intent intent = new Intent(ViewReviews.this, CreateReview.class);
+                intent.putExtra("StockName",stock.getTitle());
+                startActivity(intent);
+
+                return false;
+
+            }
+        });
+
+    }
+
+    private static int calculatePrice(List<Stock> products) {
+        ShoppingCartVisitor visitor = new ShoppingCartImpl();
+        int sum = 0;
+        for (Stock stock : products) {
+            sum = sum + stock.accept(visitor);
+        }
+        return sum;
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_login, menu);
+        getMenuInflater().inflate(R.menu.menu_book_store, menu);
         return true;
     }
 
@@ -70,62 +152,30 @@ public class login extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void onAdmin(View v) {
-        String name = ((EditText) findViewById(R.id.nameText)).getText().toString();
-        String password = ((EditText) findViewById(R.id.passwordText)).getText().toString();
-        if ((admins.size() == 0) || (admins == null)) {
-            Toast.makeText(getApplicationContext(),
-                    "There are no admins to view",
-                    Toast.LENGTH_LONG).show();
-        } else {
-            for (Admin user1 : admins) {
-                if (user1.getUsername().equalsIgnoreCase(name) && user1.getPassword().equals(password)) {
-                    Intent intent = new Intent(this, AdminBookStore.class);
-                    startActivity(intent);
+    public void strategy(View view) {
 
-
-                }
-
-
+        reviews2= new ArrayList<>();
+        String searchedItem = ((EditText) findViewById(R.id.search)).getText().toString();
+        for(Review r:reviews){
+            if(r.getStockName().equalsIgnoreCase(searchedItem)){
+                reviews2.add(r);
             }
         }
-    }
-    public void onLogin(View v) {
-        String name = ((EditText) findViewById(R.id.nameText)).getText().toString();
-        String password = ((EditText) findViewById(R.id.passwordText)).getText().toString();
-        if ((users.size() == 0) || (users == null)) {
-            Toast.makeText(getApplicationContext(),
-                    "There are no users to view",
-                    Toast.LENGTH_LONG).show();
-        } else {
+        System.out.println("hhhhh" + reviews2.toString());
+        listView = (ListView) findViewById(R.id.list);
+        ArrayAdapter<Review> adapter = new ArrayAdapter<Review>(this, R.layout.row_layout, reviews2);
+        listView.setAdapter(adapter);
 
 
-            for (User user1 : users) {
-                if (user1.getName().equalsIgnoreCase(name) && user1.getPassword().equals(password)) {
-                    Intent intent = new Intent(this, BookStore.class);
-                    startActivity(intent);
-                    SharedPreferences preferences = getSharedPreferences("User_Info", Context.MODE_PRIVATE);
-                    SharedPreferences.Editor editor = preferences.edit();
-                    editor.putLong("ID", user1.getId());
-                    editor.putString("ADDRESS", user1.getAddress());
-                    editor.putString("NAME", user1.getName());
-                    editor.putString("PAYMENT", user1.getPayment());
-                    editor.putString("PASSWORD", user1.getPassword());
-                    editor.commit();
-                    break;
-
-                }
-            }
-        }
     }
 
-    public class GetUserDetails extends AsyncTask<String, String, String> {
+    public class GetStockDetails extends AsyncTask<String, String, String> {
 
         @Override
         protected String doInBackground(String... params) {
             HttpURLConnection connection = null;
             BufferedReader reader = null;
-            users = new ArrayList<>();
+            stocks = new ArrayList<>();
             try {
                 URL url = new URL(params[0]);
                 connection = (HttpURLConnection) url.openConnection();
@@ -144,18 +194,18 @@ public class login extends AppCompatActivity {
                 for (int i = 0; i < jsonArray.length(); i++) {
                     JSONObject jsonObject = jsonArray.getJSONObject(i);
                     int id = jsonObject.getInt("id");
-                    String address = jsonObject.getString("address");
-                    String name = jsonObject.getString("name");
-                    String password = jsonObject.getString("password");
-                    String payment = jsonObject.getString("payment");
+                    String title = jsonObject.getString("title");
+                    String author = jsonObject.getString("author");
+                    int price = jsonObject.getInt("price");
+                    String category = jsonObject.getString("category");
 
 
-                    User user = new User(address, payment, name, password);//original
-                    users.add(user);//original;
+                    Stock stock = new Stock(title, author, price, category);//original
+                    stocks.add(stock);//original;
                 }
-                System.out.println("List Size1... " + users.size());
-                for (User user1 : users) {
-                    System.out.println(user1.toString());
+                System.out.println("List Size1... " + stocks.size());
+                for (Stock stock : stocks) {
+                    System.out.println(stock.toString());
 
                 }
                 return buffer.toString();
@@ -179,13 +229,13 @@ public class login extends AppCompatActivity {
         }
     }
 
-    public class GetAdmin extends AsyncTask<String, String, String> {
+    public class GetReviewDetails extends AsyncTask<String, String, String> {
 
         @Override
         protected String doInBackground(String... params) {
             HttpURLConnection connection = null;
             BufferedReader reader = null;
-            admins = new ArrayList<>();
+            reviews = new ArrayList<>();
             try {
                 URL url = new URL(params[0]);
                 connection = (HttpURLConnection) url.openConnection();
@@ -204,18 +254,18 @@ public class login extends AppCompatActivity {
                 for (int i = 0; i < jsonArray.length(); i++) {
                     JSONObject jsonObject = jsonArray.getJSONObject(i);
                     int id = jsonObject.getInt("id");
-                    String name = jsonObject.getString("username");
+                    String date = jsonObject.getString("date");
+                    String message = jsonObject.getString("message");
+                    String rating = jsonObject.getString("rating");
+                    String stockName = jsonObject.getString("stockName");
 
-                    String password = jsonObject.getString("password");
 
-
-
-                    Admin admin = new Admin(name,password);//original
-                    admins.add(admin);//original;
+                    Review review = new Review(stockName,date,message,rating);//original
+                    reviews.add(review);//original;
                 }
-                System.out.println("List Size1... " + users.size());
-                for (Admin user1 : admins) {
-                    System.out.println(user1.toString());
+                System.out.println("List Size1... " + stocks.size());
+                for (Review review : reviews) {
+                    System.out.println(review.toString());
 
                 }
                 return buffer.toString();
@@ -238,4 +288,6 @@ public class login extends AppCompatActivity {
 
         }
     }
+
 }
+

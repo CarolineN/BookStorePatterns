@@ -44,6 +44,15 @@
             android:name=".AddStock"
             android:label="@string/title_activity_add_stock" >
         </activity>
+        <activity
+            android:name=".ViewReviews"
+            android:label="@string/title_activity_view_reviews"
+            android:windowSoftInputMode="stateHidden|adjustPan" >
+        </activity>
+        <activity
+            android:name=".CreateReview"
+            android:label="@string/title_activity_create_review" >
+        </activity>
     </application>
 
 </manifest>

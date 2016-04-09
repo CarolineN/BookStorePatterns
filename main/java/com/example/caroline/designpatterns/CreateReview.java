@@ -1,14 +1,13 @@
 package com.example.caroline.designpatterns;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import org.apache.http.HttpResponse;
@@ -22,23 +21,53 @@ import org.apache.http.message.BasicNameValuePair;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
-public class register extends AppCompatActivity {
+public class CreateReview extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_register);
+        setContentView(R.layout.activity_create_review);
+        Bundle extras=getIntent().getExtras();
+        String name = extras.getString("StockName");
+        System.out.println("hhhh" + name);
+
+        ((EditText) findViewById(R.id.titleTextField)).setText(name);
+
+//        String review = ((TextView) findViewById(R.id.reviewTextView)).getText().toString();
+//        String rating =((TextView))findViewById(R.id.RatingTextField)).getText().toString();
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_register, menu);
+        getMenuInflater().inflate(R.menu.menu_create_review, menu);
         return true;
     }
+public void saveItem(View v){
+    String title = ((TextView) findViewById(R.id.titleTextField)).getText().toString();
+    String message = ((TextView) findViewById(R.id.reviewTextView)).getText().toString();
+    String rating = ((TextView) findViewById(R.id.RatingTextField)).getText().toString();
+    SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+    String reportDate=null;
+    try {
+        Date today = dateFormat.parse(dateFormat.format(new Date()));
+        reportDate = dateFormat.format(today);
+    } catch (ParseException e) {
+        e.printStackTrace();
+    }
+    new MyDownloadTask().execute(reportDate,message,rating,title);
+    Intent intent = new Intent(this, ViewReviews.class);
+
+    startActivity(intent);
+
+
+}
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -54,35 +83,17 @@ public class register extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
-    public void ShowDetails(View v){
-        String address = ((TextView) findViewById(R.id.HomeTextField)).getText().toString();
-        String payment = ((TextView) findViewById(R.id.PasswordTextField)).getText().toString();
-        String name = ((TextView) findViewById(R.id.nameTextField)).getText().toString();
-        String password = ((TextView) findViewById(R.id.emailTextView)).getText().toString();
-        new MyDownloadTask().execute(address, payment, name, password);
-        SharedPreferences preferences = getSharedPreferences("User_Info", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putString("ADDRESS",address);
-        editor.putString("NAME",name);
-        editor.putString("PAYMENT",payment);
-        editor.putString("PASSWORD",password);
-        editor.commit();
-        new MyDownloadTask().execute(address, payment, name, password);
-
-        Intent intent = new Intent(this,BookStore.class);
-        startActivity(intent);
-    }
     private class MyDownloadTask extends AsyncTask<String, String, String> {
         @Override
         protected String doInBackground(String... params) {
             BufferedReader inBuffer = null;
-            String url = "http://147.252.141.139:8080/create_user";
+            String url = "http://147.252.141.139:8080/create_review";
             String result = "fail";
 
-            String address = params[0];
-            String payment = params[1];
-            String name = params[2];
-            String password= params[3];
+            String date = params[0];
+            String message = params[1];
+            String rating = params[2];
+            String stockName= params[3];
 
 
 
@@ -91,10 +102,10 @@ public class register extends AppCompatActivity {
                 HttpPost request = new HttpPost(url);
                 List<NameValuePair> postParameters =
                         new ArrayList<NameValuePair>();
-                postParameters.add(new BasicNameValuePair("address", address));
-                postParameters.add(new BasicNameValuePair("payment", payment));
-                postParameters.add(new BasicNameValuePair("name", name));
-                postParameters.add(new BasicNameValuePair("password", password));
+                postParameters.add(new BasicNameValuePair("date", date));
+                postParameters.add(new BasicNameValuePair("message",message));
+                postParameters.add(new BasicNameValuePair("rating", rating));
+                postParameters.add(new BasicNameValuePair("stockName", stockName));
 
 
                 UrlEncodedFormEntity formEntity =

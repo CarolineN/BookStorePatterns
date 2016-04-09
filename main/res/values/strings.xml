@@ -10,4 +10,6 @@
     <string name="title_activity_the_cart">TheCart</string>
     <string name="title_activity_admin_book_store">AdminBookStore</string>
     <string name="title_activity_add_stock">AddStock</string>
+    <string name="title_activity_view_reviews">ViewReviews</string>
+    <string name="title_activity_create_review">CreateReview</string>
 </resources>

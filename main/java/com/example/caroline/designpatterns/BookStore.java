@@ -18,12 +18,15 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
@@ -56,7 +59,7 @@ public class BookStore extends AppCompatActivity implements AdapterView.OnItemSe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_book_store);
-        new GetStockDetails().execute("http://192.168.0.7:8080/reststocks");
+        new GetStockDetails().execute("http://147.252.141.139:8080/reststocks");
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
@@ -136,7 +139,7 @@ public void addToList(){
             products.add(stock);
 
             //items = new ItemElement[]{new Stock(title1,author1,foo, category1)};
-            Toast.makeText(BookStore.this,"Added to Cart!", Toast.LENGTH_LONG).show();
+            Toast.makeText(BookStore.this, "Added to Cart!", Toast.LENGTH_LONG).show();
             return false;
 
         }
@@ -171,6 +174,12 @@ public void addToList(){
         getMenuInflater().inflate(R.menu.menu_book_store, menu);
         return true;
     }
+    public void reviews(View v){
+        Intent intent = new Intent(this, ViewReviews.class);
+        startActivity(intent);
+
+    }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -276,30 +285,44 @@ public void addToList(){
     private class MyDownloadTask extends AsyncTask<String, String, String> {
         @Override
         protected String doInBackground(String... params) {
+            System.out.println("In do in background");
+            String title="";
+            String author="";
+            String category="";
+            int price=0;
             BufferedReader inBuffer = null;
-            String url = "http://192.168.0.7:8080/create_cart";
+            String url = "http://147.252.141.139:8080/create_cart";
             String result = "fail";
-
             String name = params[0];
-
             String strI = Integer.toString(total);
-            String json = new Gson().toJson(products);
+            JSONObject json = new JSONObject();
+
+            try {
+                for(Stock stock:products){
+                    title = stock.getTitle();
+                    author= stock.getAuthor();
+                    price = stock.getPrice();
+                    category = stock.getCategory();
+                }
+
+                json.put("name", name);
+                json.put("total",strI);
+                json.put("stocks",products);
+
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            System.out.println(json);
 
             try {
                 HttpClient httpClient = new DefaultHttpClient();
                 HttpPost request = new HttpPost(url);
-                List<NameValuePair> postParameters =
-                        new ArrayList<NameValuePair>();
-                postParameters.add(new BasicNameValuePair("userName", name));
-                postParameters.add(new BasicNameValuePair("totalPrice", strI));
-                postParameters.add(new BasicNameValuePair("stocks",json));
 
+                StringEntity param = new StringEntity(json.toString());
 
-
-                UrlEncodedFormEntity formEntity =
-                        new UrlEncodedFormEntity(postParameters);
-
-                request.setEntity(formEntity);
+                //System.out.println(param.toString());// this does work. why is it null on the server side
+                request.setEntity(param);
                 HttpResponse httpResponse = httpClient.execute(request);
                 inBuffer = new BufferedReader(new InputStreamReader(
                         httpResponse.getEntity().getContent()));
@@ -326,7 +349,6 @@ public void addToList(){
             return result;
         }
     }
-
 }
 
 interface SortStrategy {

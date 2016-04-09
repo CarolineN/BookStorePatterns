@@ -67,7 +67,7 @@ public class Stock implements ItemElement {
     @Override
     public String toString() {
         return "Stock{" +
-                "id=" + id +
+
                 ", title='" + title + '\'' +
                 ", author='" + author + '\'' +
                 ", price=" + price +
