@@ -98,6 +98,10 @@ public class AdminBookStore extends AppCompatActivity implements AdapterView.OnI
         ((EditText) findViewById(R.id.search)).setText("");
         addToList();
     }
+    public void viewCustomers(View v){
+        Intent intent = new Intent(this, ViewCustomers.class);
+        startActivity(intent);
+    }
     public void addStock(View v){
         Intent intent = new Intent(this, AddStock.class);
         startActivity(intent);

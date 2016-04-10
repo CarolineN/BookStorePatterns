@@ -12,4 +12,5 @@
     <string name="title_activity_add_stock">AddStock</string>
     <string name="title_activity_view_reviews">ViewReviews</string>
     <string name="title_activity_create_review">CreateReview</string>
+    <string name="title_activity_view_customers">ViewCustomers</string>
 </resources>
