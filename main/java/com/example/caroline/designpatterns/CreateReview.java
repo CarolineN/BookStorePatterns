@@ -50,6 +50,7 @@ public class CreateReview extends AppCompatActivity {
         return true;
     }
 public void saveItem(View v){
+    ReviewCaretaker caretaker = new ReviewCaretaker();
     String title = ((TextView) findViewById(R.id.titleTextField)).getText().toString();
     String message = ((TextView) findViewById(R.id.reviewTextView)).getText().toString();
     String rating = ((TextView) findViewById(R.id.RatingTextField)).getText().toString();
@@ -61,7 +62,10 @@ public void saveItem(View v){
     } catch (ParseException e) {
         e.printStackTrace();
     }
-    new MyDownloadTask().execute(reportDate,message,rating,title);
+    Review fileWriter = new Review(title,reportDate,message,rating);
+    System.out.println(fileWriter);
+    caretaker.save(fileWriter);
+    new MyDownloadTask().execute(fileWriter.getDate(),fileWriter.getMessage(),fileWriter.getRating(),fileWriter.getStockName());
     Intent intent = new Intent(this, ViewReviews.class);
 
     startActivity(intent);

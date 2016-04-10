@@ -71,4 +71,29 @@ public class Review {
                 "Message='" + message + "\n" +
                 "Rating='" + rating + "\n" ;
     }
+    public Memento save(){
+        return new Memento(this.stockName,this.date,this.message,this.rating);
+    }
+    public void undoToLastSave(Object obj){
+        Memento memento = (Memento) obj;
+        this.stockName= memento.stockName;
+        this.date=memento.date;
+        this.message=memento.message;
+        this.rating=memento.rating;
+    }
+
+
+    private class Memento{
+        private String stockName;
+        private String date;
+        private String message;
+        private String rating;
+
+        public Memento(String stockName, String date, String message, String rating){
+            this.stockName=stockName;
+            this.date = date;
+            this.message = message;
+            this.rating=rating;
+        }
+    }
 }
